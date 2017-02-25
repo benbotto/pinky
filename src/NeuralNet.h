@@ -7,13 +7,18 @@ using std::vector;
 using std::array;
 #include <memory>
 using std::unique_ptr;
-#include "Neuron.h"
-using busybin::Neuron;
+#include "neuron/INeuron.h"
+#include "neuron/Neuron.h"
+#include "neuron/InputNeuron.h"
+#include "neuron/BiasNeuron.h"
+using busybin::INeuron;
+using busybin::InputNeuron;
+using busybin::BiasNeuron;
 
 namespace busybin {
   class NeuralNet {
-    typedef unique_ptr<Neuron> pNeuron;
-    typedef vector<pNeuron>    layer;
+    typedef unique_ptr<INeuron> pNeuron;
+    typedef vector<pNeuron>     layer;
 
     unsigned numIn, numHidden, numOut;
 

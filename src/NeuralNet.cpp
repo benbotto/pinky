@@ -9,16 +9,18 @@ namespace busybin {
     numIn(numIn), numHidden(numHidden), numOut(numOut) {
 
     // Input layer, with a bias at the end.
-    for (unsigned i = 0; i < numIn + 1; ++i)
-      layers[0].push_back(unique_ptr<Neuron>(new Neuron()));
+    for (unsigned i = 0; i < numIn; ++i)
+      layers.at(0).push_back(pNeuron(new InputNeuron()));
+    layers.at(0).push_back(pNeuron(new BiasNeuron()));
 
     // Hidden layer, with a bias at the end.
-    for (unsigned i = 0; i < numHidden + 1; ++i)
-      layers[1].push_back(unique_ptr<Neuron>(new Neuron()));
+    for (unsigned i = 0; i < numHidden; ++i)
+      layers.at(1).push_back(pNeuron(new Neuron()));
+    layers.at(1).push_back(pNeuron(new BiasNeuron()));
 
     // Output layer.
     for (unsigned i = 0; i < numOut; ++i)
-      layers[2].push_back(unique_ptr<Neuron>(new Neuron()));
+      layers.at(2).push_back(pNeuron(new Neuron()));
 
     // Each input neuron gets connected to each hidden neuron.
     array<double, 6> hWeights = {.15, .20, .25, .30, .35, .35};
@@ -30,7 +32,8 @@ namespace busybin {
              << " to hidden " << h
              << " with weight " << hWeights[numIn * i + h]
              << endl;
-        layers[1].at(h)->addInput(*layers[0].at(i), hWeights[numIn * i + h]);
+        dynamic_cast<Neuron&>(*layers.at(1).at(h))
+          .addInput(*layers.at(0).at(i), hWeights[numIn * i + h]);
       }
     }
 
@@ -43,7 +46,8 @@ namespace busybin {
              << " to output " << o
              << " with weight " << oWeights[numHidden * h + o]
              << endl;
-        layers[2].at(o)->addInput(*layers[1].at(h), oWeights[numHidden * h + o]);
+        dynamic_cast<Neuron&>(*layers.at(2).at(o))
+          .addInput(*layers.at(1).at(h), oWeights[numHidden * h + o]);
       }
     }
   }

@@ -4,7 +4,9 @@ project(pinky)
 # All source files.
 set(SRC
   "./src/pinky.cpp"
-  "./src/Neuron.cpp"
+  "./src/neuron/Neuron.cpp"
+  "./src/neuron/InputNeuron.cpp"
+  "./src/neuron/BiasNeuron.cpp"
   "./src/NeuralNet.cpp")
 
 # Build the pinky executable.
