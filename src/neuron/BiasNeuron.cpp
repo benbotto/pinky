@@ -4,14 +4,20 @@ namespace busybin {
   /**
    * Init, with a default output of 1.0.
    */
-  BiasNeuron::BiasNeuron(double output) : output(output) {
+  BiasNeuron::BiasNeuron(double output) {
+    this->output = output;
   }
 
   /**
-   * The output is static.
+   * Nothing to update.
    */
-  double BiasNeuron::getOutput() const {
-    return this->output;
+  void BiasNeuron::updateOutput() {
+  }
+
+  /**
+   * Nothing to reset.
+   */
+  void BiasNeuron::reset() {
   }
 }
 

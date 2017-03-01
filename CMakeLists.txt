@@ -7,7 +7,7 @@ set(SRC
   "./src/neuron/Neuron.cpp"
   "./src/neuron/InputNeuron.cpp"
   "./src/neuron/BiasNeuron.cpp"
-  "./src/NeuralNet.cpp")
+  "./src/neuron/OutputNeuron.cpp")
 
 # Build the pinky executable.
 add_executable(pinky ${SRC})

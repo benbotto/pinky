@@ -4,13 +4,11 @@
 #include "Neuron.h"
 
 namespace busybin {
-  class InputNeuron : public INeuron {
-    double input;
-
+  class InputNeuron : public Neuron {
   public:
-    InputNeuron();
-    void setInput(double input);
-    double getOutput() const;
+    void pushInput(double input, double weight = 1);
+    void updateOutput();
+    void reset();
   };
 }
 

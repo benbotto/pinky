@@ -2,23 +2,22 @@
 
 namespace busybin {
   /**
-   * Input defaults to 0.
+   * Weight is ignored.  Set the single input.
    */
-  InputNeuron::InputNeuron() : input(0) {
+  void InputNeuron::pushInput(double input, double weight) {
+    this->output = input;
   }
 
   /**
-   * Set the input.
+   * Nothing to update.
    */
-  void InputNeuron::setInput(double input) {
-    this->input = input;
+  void InputNeuron::updateOutput() {
   }
 
   /**
-   * The output is the same as the input on first-layer neurons.
+   * Nothing to reset.
    */
-  double InputNeuron::getOutput() const {
-    return this->input;
+  void InputNeuron::reset() {
   }
 }
 
