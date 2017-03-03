@@ -87,7 +87,10 @@ namespace busybin {
     /**
      * Do a round of training.
      */
-    void train(const array<double, NUM_IN>& inputs) const {
+    void train(const array<double, NUM_IN>& inputs,
+      const array<double, NUM_OUT>& expected) const {
+      double totalError = 0;
+
       // Reset the inputs/weights from the last training round.
       for (unsigned i = NUM_IN + 1; i < this->neurons.size(); ++i)
         this->neurons[i]->reset();
@@ -113,54 +116,19 @@ namespace busybin {
         this->pOutputLayer[i]->updateOutput();
 
       for (const pNeuron_t& pNeuron: this->neurons) {
-        cout << pNeuron->getName()   << " has output: "
-             << pNeuron->getOutput() << endl;
+        cout << *pNeuron << endl;
       }
 
-      /*
-      // Reset the inputs/weights from the last round.  This is only needed
-      // on the hidden and output layers, as the inputs and biases don't have
-      // any connections.
-      for (const pNeuron& pNeuron: this->hiddenLayer)
-        pNeuron->reset();
-
-      for (const pNeuron& pNeuron: this->outputLayer)
-        pNeuron->reset();
-
-      // Set the new inputs.
-      for (unsigned i = 0; i < NUM_IN; ++i)
-        this->inputLayer[i]->pushInput(inputs[i]);
-
-      // Feed the inputs forward to the hidden layer.
-      for (unsigned i = 0; i < NUM_IN + 1; ++i)
-        this->inputLayer[i]->feedForward();
-
-      // Update the outputs for each hidden neuron.
-      for (unsigned i = 0; i < NUM_HIDDEN; ++i)
-        this->hiddenLayer[i]->updateOutput();
-
-      // Feed the hidden outputs forward to the output layer.
-      for (unsigned i = 0; i < NUM_HIDDEN + 1; ++i)
-        this->hiddenLayer[i]->feedForward();
-
-      // Finally, update the outputs.
-      for (unsigned i = 0; i < NUM_OUT; ++i)
-        this->outputLayer[i]->updateOutput();
-
-      for (unsigned i = 0; i < NUM_IN + 1; ++i) {
-        cout << "Input neuron " << i
-             << " output: "     << this->inputLayer[i]->getOutput() << endl;
-      }
-
-      for (unsigned i = 0; i < NUM_HIDDEN + 1; ++i) {
-        cout << "Hidden neuron " << i
-             << " output: "     << this->hiddenLayer[i]->getOutput() << endl;
-      }
-
+      // Calculate the total error.
       for (unsigned i = 0; i < NUM_OUT; ++i) {
-        cout << "Output neuron " << i
-             << " output: "     << this->outputLayer[i]->getOutput() << endl;
-      }*/
+        // E_{total} = \sum \frac{1}{2}(target - output)^{2}
+        // Note that the 1/2 is there so that the exponent cancels out when
+        // the derivative is taken.  A learning rate will be used, so the
+        // constant won't matter in the long run.
+        totalError += .5 * std::pow(expected[i] - this->pOutputLayer[i]->getOutput(), 2);
+      }
+
+      cout << "Total error: " << totalError << endl;
     }
   };
 }

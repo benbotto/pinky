@@ -10,7 +10,7 @@ using std::endl;
 int main(int argc, char* argv[]) {
   busybin::NeuralNet<2, 2, 2> nn;
 
-  nn.train({.05, .10});
+  nn.train({.05, .10}, {.01, .99});
 
   return 0;
 }
