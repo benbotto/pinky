@@ -9,6 +9,7 @@ namespace busybin {
     BiasNeuron(double output = 1.0);
     void updateOutput();
     void reset();
+    string getName() const;
   };
 }
 

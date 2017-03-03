@@ -19,5 +19,12 @@ namespace busybin {
    */
   void InputNeuron::reset() {
   }
+
+  /**
+   * Get the name.
+   */
+  string InputNeuron::getName() const {
+    return "InputNeuron";
+  }
 }
 

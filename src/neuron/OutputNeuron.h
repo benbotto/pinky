@@ -8,6 +8,7 @@ namespace busybin {
   public:
     void connectTo(Neuron&, double weight);
     void feedForward() const;
+    string getName() const;
   };
 }
 

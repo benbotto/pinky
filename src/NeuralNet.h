@@ -22,30 +22,39 @@ namespace busybin {
   // added automatically for the input and hidden layers.
   template <size_t NUM_IN, size_t NUM_HIDDEN, size_t NUM_OUT>
   class NeuralNet {
-    typedef unique_ptr<Neuron> pNeuron;
+    typedef unique_ptr<Neuron> pNeuron_t;
 
-    array<pNeuron, NUM_IN + 1>     inputLayer;
-    array<pNeuron, NUM_HIDDEN + 1> hiddenLayer;
-    array<pNeuron, NUM_OUT>        outputLayer;
+    // All the neurons in the network.
+    array<pNeuron_t, NUM_IN + 1 + NUM_HIDDEN + 1 + NUM_OUT> neurons;
+
+    // These are convenience pointers that point to each layer.  Keep in mind
+    // that the input and hidden layer each have an additional bias neuron.
+    pNeuron_t* pInputLayer;
+    pNeuron_t* pHiddenLayer;
+    pNeuron_t* pOutputLayer;
 
   public:
     /**
      * Initialize the network.
      */
     NeuralNet() {
+      this->pInputLayer  = &neurons[0];
+      this->pHiddenLayer = &neurons[NUM_IN + 1];
+      this->pOutputLayer = &neurons[NUM_IN + 1 + NUM_HIDDEN + 1];
+
       // Input layer, with a bias at the end.
       for (unsigned i = 0; i < NUM_IN; ++i)
-        this->inputLayer[i] = pNeuron(new InputNeuron());
-      this->inputLayer[NUM_IN] = pNeuron(new BiasNeuron());
+        this->pInputLayer[i] = pNeuron_t(new InputNeuron());
+      this->pInputLayer[NUM_IN] = pNeuron_t(new BiasNeuron());
 
       // Hidden layer, with a bias at the end.
       for (unsigned i = 0; i < NUM_HIDDEN; ++i)
-        this->hiddenLayer[i] = pNeuron(new Neuron());
-      this->hiddenLayer[NUM_HIDDEN] = pNeuron(new BiasNeuron());
+        this->pHiddenLayer[i] = pNeuron_t(new Neuron());
+      this->pHiddenLayer[NUM_HIDDEN] = pNeuron_t(new BiasNeuron());
 
       // Output layer.
       for (unsigned i = 0; i < NUM_OUT; ++i)
-        this->outputLayer[i] = pNeuron(new OutputNeuron());
+        this->pOutputLayer[i] = pNeuron_t(new OutputNeuron());
 
       // Each input neuron gets connected to each hidden neuron.
       array<double, 6> iWeights = {.15, .25, .20, .30, .35, .35};
@@ -57,7 +66,7 @@ namespace busybin {
                << " to hidden " << h
                << " with weight " << iWeights[NUM_IN * i + h]
                << endl;
-          this->inputLayer[i]->connectTo(*this->hiddenLayer[h], iWeights[NUM_IN * i + h]);
+          this->pInputLayer[i]->connectTo(*this->pHiddenLayer[h], iWeights[NUM_IN * i + h]);
         }
       }
 
@@ -70,7 +79,7 @@ namespace busybin {
                << " to output " << o
                << " with weight " << hWeights[NUM_HIDDEN * h + o]
                << endl;
-          this->hiddenLayer[h]->connectTo(*this->outputLayer[o], hWeights[NUM_HIDDEN * h + o]);
+          this->pHiddenLayer[h]->connectTo(*this->pOutputLayer[o], hWeights[NUM_HIDDEN * h + o]);
         }
       }
     }
@@ -79,6 +88,36 @@ namespace busybin {
      * Do a round of training.
      */
     void train(const array<double, NUM_IN>& inputs) const {
+      // Reset the inputs/weights from the last training round.
+      for (unsigned i = NUM_IN + 1; i < this->neurons.size(); ++i)
+        this->neurons[i]->reset();
+
+      // Set the new inputs.
+      for (unsigned i = 0; i < NUM_IN; ++i)
+        dynamic_cast<InputNeuron&>(*this->pInputLayer[i]).pushInput(inputs[i]);
+
+      // Feed the inputs forward to the hidden layer.
+      for (unsigned i = 0; i < NUM_IN + 1; ++i)
+        this->pInputLayer[i]->feedForward();
+
+      // Update the outputs for each hidden neuron.
+      for (unsigned i = 0; i < NUM_HIDDEN; ++i)
+        this->pHiddenLayer[i]->updateOutput();
+
+      // Feed the hidden outputs forward to the output layer.
+      for (unsigned i = 0; i < NUM_HIDDEN + 1; ++i)
+        this->pHiddenLayer[i]->feedForward();
+
+      // Finally, update the outputs.
+      for (unsigned i = 0; i < NUM_OUT; ++i)
+        this->pOutputLayer[i]->updateOutput();
+
+      for (const pNeuron_t& pNeuron: this->neurons) {
+        cout << pNeuron->getName()   << " has output: "
+             << pNeuron->getOutput() << endl;
+      }
+
+      /*
       // Reset the inputs/weights from the last round.  This is only needed
       // on the hidden and output layers, as the inputs and biases don't have
       // any connections.
@@ -121,7 +160,7 @@ namespace busybin {
       for (unsigned i = 0; i < NUM_OUT; ++i) {
         cout << "Output neuron " << i
              << " output: "     << this->outputLayer[i]->getOutput() << endl;
-      }
+      }*/
     }
   };
 }

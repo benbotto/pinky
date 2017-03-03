@@ -19,5 +19,12 @@ namespace busybin {
    */
   void BiasNeuron::reset() {
   }
+
+  /**
+   * Get the name.
+   */
+  string BiasNeuron::getName() const {
+    return "BiasNeuron";
+  }
 }
 

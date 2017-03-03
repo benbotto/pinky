@@ -12,5 +12,12 @@ namespace busybin {
    */
   void OutputNeuron::feedForward() const {
   }
+
+  /**
+   * Get the name.
+   */
+  string OutputNeuron::getName() const {
+    return "OutputNeuron";
+  }
 }
 

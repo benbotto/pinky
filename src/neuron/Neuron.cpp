@@ -1,9 +1,5 @@
 #include "Neuron.h"
 
-#include <iostream>
-using std::cout;
-using std::endl;
-
 namespace busybin {
   /**
    * Init.  Output defaults to 0.
@@ -63,21 +59,21 @@ namespace busybin {
    * Update the output based on the input values and weights.
    */
   void Neuron::updateOutput() {
-    for (double input : this->inputs)
-      cout << "Input: " << input << endl;
-
-    for (double weight : this->weights)
-      cout << "Weight: " << weight << endl;
-
     // Dot product of inputs and weights.  Note that the initial value (0.0)
     // needs to be a double.  0 will not work.
-    this->output = inner_product(
+    double dotProd = inner_product(
       this->inputs.begin(), this->inputs.end(),
       this->weights.begin(), 0.0);
     
     // Squash the output using the logistic function.
-    
-    cout << "Output is now: " << this->output << endl;
+    this->output = 1 / (1 + exp(-dotProd));
+  }
+
+  /**
+   * Get the name.
+   */
+  string Neuron::getName() const {
+    return "Neuron";
   }
 }
 

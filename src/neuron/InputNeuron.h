@@ -9,6 +9,7 @@ namespace busybin {
     void pushInput(double input, double weight = 1);
     void updateOutput();
     void reset();
+    string getName() const;
   };
 }
 
