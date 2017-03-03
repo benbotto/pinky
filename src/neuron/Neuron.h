@@ -10,6 +10,10 @@ using std::vector;
 using std::inner_product;
 #include <string>
 using std::string;
+#include <sstream>
+using std::ostringstream;
+#include <ostream>
+using std::ostream;
 #include <cmath>
 
 namespace busybin {
@@ -17,6 +21,7 @@ namespace busybin {
     typedef pair<Neuron*, double> connection_t;
 
   protected:
+    double netInput;
     double output;
     vector<connection_t> connections;
     vector<double>       inputs;
@@ -31,6 +36,9 @@ namespace busybin {
     // Connect this Neuron to a Neuron that is in a forward layer.
     virtual void connectTo(Neuron&, double weight);
 
+    // Get this Neuron's net input (dot product of weights and inputs).
+    virtual double getNetInput() const;
+
     // Get this Neuron's output.
     virtual double getOutput() const;
 
@@ -41,11 +49,17 @@ namespace busybin {
     // Clear inputs and weights.
     virtual void reset();
 
-    // Update this Neuron's output value.
+    // Update this Neuron's net input and output value.
     virtual void updateOutput();
 
-    // Get the name (type) of this neuron.
+    // Get the name (type) of this Neuron.
     virtual string getName() const;
+
+    // Describe this Neuron.
+    virtual string toString() const;
+
+    // Helper for logging.
+    friend ostream& operator<<(ostream& os, const Neuron& neuron);
   };
 }
 

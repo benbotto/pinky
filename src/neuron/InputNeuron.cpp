@@ -9,6 +9,13 @@ namespace busybin {
   }
 
   /**
+   * Get the net input for this Neuron.
+   */
+  double InputNeuron::getNetInput() const {
+    return this->output;
+  }
+
+  /**
    * Nothing to update.
    */
   void InputNeuron::updateOutput() {

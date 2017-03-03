@@ -2,9 +2,9 @@
 
 namespace busybin {
   /**
-   * Init.  Output defaults to 0.
+   * Init.  Output and net input default to 0.
    */
-  Neuron::Neuron() : output(0) {
+  Neuron::Neuron() : netInput(0), output(0) {
   }
 
   /**
@@ -18,6 +18,13 @@ namespace busybin {
    */
   void Neuron::connectTo(Neuron& neuron, double weight) {
     this->connections.push_back(make_pair(&neuron, weight));
+  }
+
+  /**
+   * Get the net input for this Neuron.
+   */
+  double Neuron::getNetInput() const {
+    return this->netInput;
   }
 
   /**
@@ -61,12 +68,12 @@ namespace busybin {
   void Neuron::updateOutput() {
     // Dot product of inputs and weights.  Note that the initial value (0.0)
     // needs to be a double.  0 will not work.
-    double dotProd = inner_product(
+    this->netInput = inner_product(
       this->inputs.begin(), this->inputs.end(),
       this->weights.begin(), 0.0);
     
     // Squash the output using the logistic function.
-    this->output = 1 / (1 + exp(-dotProd));
+    this->output = 1 / (1 + exp(-this->netInput));
   }
 
   /**
@@ -74,6 +81,28 @@ namespace busybin {
    */
   string Neuron::getName() const {
     return "Neuron";
+  }
+
+  /**
+   * Describe this Neuron.
+   */
+  string Neuron::toString() const {
+    ostringstream oss;
+
+    oss << "Name: "      << this->getName()     << ' '
+        << "Net Input: " << this->getNetInput() << ' '
+        << "Output: "    << this->getOutput();
+
+    return oss.str();
+  }
+
+  /**
+   * Output the Neuron to the stream os.
+   */
+  ostream& operator<<(ostream& os, const Neuron& neuron) {  
+    os << neuron.toString();
+
+    return os;
   }
 }
 
