@@ -1,0 +1,75 @@
+Input layer is in $\mathbb{R}^m$.
+
+Hidden layer is in $\mathbb{R}^n$.
+
+Output layer is in $\mathbb{R}^p$.
+
+And let $m = 3$, $n = 3$, $p = 2$ (bias nodes are included).
+
+$$
+  E_{tot} = \sum_{i=1}^p\frac{1}{2}(ideal_i - out_{o_i})^2
+          = \frac{1}{2}(ideal_1 - out_{o_1})^2 + \frac{1}{2}(ideal_2 - out_{o_2})^2
+$$
+
+$$out_{o_1} = \frac{1}{1+e^{-net_{o_1}}}$$
+$$out_{o_2} = \frac{1}{1+e^{-net_{o_2}}}$$
+$$
+  net_{o_1} = \sum_{i=1}^n(out_{h_i}w_{h_i,o_1})
+            = out_{h_1}w_{h_1,o_1} + out_{h_2}w_{h_2,o_1} + out_{h_3}w_{h_3,o_1}
+$$
+$$
+  net_{o_2} = \sum_{i=1}^n(out_{h_i}w_{h_i,o_2})
+            = out_{h_1}w_{h_1,o_2} + out_{h_2}w_{h_2,o_2} + out_{h_3}w_{h_3,o_2}
+$$
+
+Example for the output layer.  Find the change in the total error with respect to weight $w_{h_1,o_1}$.
+
+$$
+  \frac{\partial E_{tot}}{\partial w_{h_1,o_1}} =
+    \frac{\partial E_{tot}}{\partial out_{o_1}}
+    \frac{\partial out_{o_1}}{\partial net_{o_1}}
+    \frac{\partial net_{o_1}}{\partial w_{h_1,o_1}} =
+    (out_{o_1} - ideal_1)out_{o_1}(1 - out_{o_1})out_{h_1}
+$$
+
+Example for the hidden layer.    Find the change in the total error with respect to weight $w_{i_1,h_1}$.
+
+$$
+  \frac{\partial E_{tot}}{\partial w_{i_1,h_1}} =
+    \frac{\partial E_{tot}}{\partial out_{o_1}}
+    \frac{\partial out_{o_1}}{\partial net_{o_1}}
+    \frac{\partial net_{o_1}}{\partial w_{i_1,h_1}} +
+    \frac{\partial E_{tot}}{\partial out_{o_2}}
+    \frac{\partial out_{o_2}}{\partial net_{o_2}}
+    \frac{\partial net_{o_2}}{\partial w_{i_1,h_2}}
+$$
+$$
+  =
+    \frac{\partial E_{tot}}{\partial out_{o_1}}
+    \frac{\partial out_{o_1}}{\partial net_{o_1}}
+    \frac{\partial net_{o_1}}{\partial out_{h_1}}
+    \frac{\partial out_{h_1}}{\partial net_{h_1}}
+    \frac{\partial net_{h_1}}{\partial w_{i_1,h_1}} +
+    \frac{\partial E_{tot}}{\partial out_{o_2}}
+    \frac{\partial out_{o_2}}{\partial net_{o_2}}
+    \frac{\partial net_{o_2}}{\partial out_{h_1}}
+    \frac{\partial out_{h_1}}{\partial net_{h_1}}
+    \frac{\partial net_{h_1}}{\partial w_{i_1,h_1}}
+$$
+$$
+  =
+    \frac{\partial out_{h_1}}{\partial net_{h_1}}
+    \frac{\partial net_{h_1}}{\partial w_{i_1,h_1}}
+    (\frac{\partial E_{tot}}{\partial out_{o_1}}
+    \frac{\partial out_{o_1}}{\partial net_{o_1}}
+    \frac{\partial net_{o_1}}{\partial out_{h_1}} +
+    \frac{\partial E_{tot}}{\partial out_{o_2}}
+    \frac{\partial out_{o_2}}{\partial net_{o_2}}
+    \frac{\partial net_{o_2}}{\partial out_{h_1}})
+$$
+$$
+  =
+    out_{h_1}(1-out_{h_1})out_{i_1}[(out_{o_1} - ideal_1)out_{o_1}(1-out_{o_1})w_{h_1,o_1} +
+    (out_{o_2}-ideal_2)out_{o_2}(1-out_{o_2})w_{h_1,o_2}]
+$$
+
