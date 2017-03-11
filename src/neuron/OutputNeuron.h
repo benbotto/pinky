@@ -5,10 +5,18 @@
 
 namespace busybin {
   class OutputNeuron : public Neuron {
+    double ideal;
+
   public:
+    OutputNeuron();
     void connectTo(Neuron&, double weight);
     void feedForward() const;
+    void setIdeal(double ideal);
+    double getIdeal() const;
+    void updateErrorTerm();
+    void updateWeights(double learningRate);
     string getName() const;
+    string toString() const;
   };
 }
 

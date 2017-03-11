@@ -28,6 +28,12 @@ namespace busybin {
   }
 
   /**
+   * No error term (nothing connected in).
+   */
+  void InputNeuron::updateErrorTerm() {
+  }
+
+  /**
    * Get the name.
    */
   string InputNeuron::getName() const {

@@ -21,6 +21,12 @@ namespace busybin {
   }
 
   /**
+   * No error term (nothing connected in).
+   */
+  void BiasNeuron::updateErrorTerm() {
+  }
+
+  /**
    * Get the name.
    */
   string BiasNeuron::getName() const {

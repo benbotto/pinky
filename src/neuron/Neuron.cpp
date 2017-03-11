@@ -2,9 +2,9 @@
 
 namespace busybin {
   /**
-   * Init.  Output and net input default to 0.
+   * Init.  Output, net input, and error term default to 0.
    */
-  Neuron::Neuron() : netInput(0), output(0) {
+  Neuron::Neuron() : netInput(0), output(0), errorTerm(0) {
   }
 
   /**
@@ -18,6 +18,18 @@ namespace busybin {
    */
   void Neuron::connectTo(Neuron& neuron, double weight) {
     this->connections.push_back(make_pair(&neuron, weight));
+  }
+
+  /**
+   * Get the weights.
+   */
+  vector<double> Neuron::getWeights() const {
+    vector<double> weights;
+
+    for (const connection_t& conn: this->connections)
+      weights.push_back(conn.second);
+
+    return weights;
   }
 
   /**
@@ -35,6 +47,13 @@ namespace busybin {
   }
 
   /**
+   * Get the error term for this Neuron.
+   */
+  double Neuron::getErrorTerm() const {
+    return this->errorTerm;
+  }
+
+  /**
    * Add an input-weight pair from a Neuron.  Note that the weight here is
    * inbound (e.g. on the inward connection) as opposed to the connection
    * weights.
@@ -48,9 +67,8 @@ namespace busybin {
    * Push output from this neuron into its forward-connected neurons.
    */
   void Neuron::feedForward() const {
-    for (const connection_t& conn: this->connections) {
+    for (const connection_t& conn: this->connections)
       conn.first->pushInput(this->getOutput(), conn.second);
-    }
   }
 
   /**
@@ -77,6 +95,35 @@ namespace busybin {
   }
 
   /**
+   * Update the error term for this Neuron.
+   */
+  void Neuron::updateErrorTerm() {
+    // This calculates the error term (the "delta" part) for a Neuron.
+    // In essence, it's used to determine how much a weight contributes to
+    // the total error.  There's a derivation on Wikipedia:
+    // https://en.wikipedia.org/wiki/Backpropagation#Derivation
+    // I've also done my own derivation, which is concrete and takes a
+    // different approach for the hidden neurons.  See Backprop.txt for
+    // my derivation.
+    double out = this->getOutput();
+
+    this->errorTerm = 0;
+
+    for (const connection_t& conn: this->connections)
+      this->errorTerm += conn.first->getErrorTerm() * conn.second;
+
+    this->errorTerm *= out * (1 - out);
+  }
+
+  /**
+   * Update the weights.
+   */
+  void Neuron::updateWeights(double learningRate) {
+    for (connection_t& conn: this->connections)
+      conn.second -= learningRate * conn.first->getErrorTerm() * this->getOutput();
+  }
+
+  /**
    * Get the name.
    */
   string Neuron::getName() const {
@@ -89,9 +136,10 @@ namespace busybin {
   string Neuron::toString() const {
     ostringstream oss;
 
-    oss << "Name: "      << this->getName()     << ' '
-        << "Net Input: " << this->getNetInput() << ' '
-        << "Output: "    << this->getOutput();
+    oss << "Name: "       << this->getName()      << ' '
+        << "Net Input: "  << this->getNetInput()  << ' '
+        << "Output: "     << this->getOutput()    << ' '
+        << "Error Term: " << this->getErrorTerm();
 
     return oss.str();
   }
@@ -99,7 +147,7 @@ namespace busybin {
   /**
    * Output the Neuron to the stream os.
    */
-  ostream& operator<<(ostream& os, const Neuron& neuron) {  
+  ostream& operator<<(ostream& os, const Neuron& neuron) {
     os << neuron.toString();
 
     return os;

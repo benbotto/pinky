@@ -10,6 +10,7 @@ namespace busybin {
     double getNetInput() const;
     void updateOutput();
     void reset();
+    void updateErrorTerm();
     string getName() const;
   };
 }
