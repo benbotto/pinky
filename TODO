@@ -1,4 +1,2 @@
-Need to initialze the weights to random values.
-Need an overloaded ctor for NeuralNet to provide weights.
 Need an overloaded ctor for NeuralNet to provide weights from a file.
 Need a way to save weights to a file.

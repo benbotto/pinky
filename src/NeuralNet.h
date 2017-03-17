@@ -11,6 +11,10 @@ using std::ostringstream;
 using std::ostream;
 #include <vector>
 using std::vector;
+#include <random>
+using std::uniform_real_distribution;
+using std::default_random_engine;
+using std::random_device;
 #include "neuron/Neuron.h"
 #include "neuron/InputNeuron.h"
 #include "neuron/BiasNeuron.h"
@@ -40,11 +44,12 @@ namespace busybin {
     // after a forward pass.
     double totalError;
 
-  public:
     /**
-     * Initialize the network.
+     * Initialize the network.  This is called from the various overloaded
+     * ctors, and does the actual initialization of the network.
      */
-    NeuralNet() {
+    void initialize(array<double, (NUM_IN + 1) * NUM_HIDDEN> iWeights,
+      array<double, (NUM_HIDDEN + 1) * NUM_OUT> hWeights) {
       this->pInputLayer  = &neurons[0];
       this->pHiddenLayer = &neurons[NUM_IN + 1];
       this->pOutputLayer = &neurons[NUM_IN + 1 + NUM_HIDDEN + 1];
@@ -65,7 +70,6 @@ namespace busybin {
         this->pOutputLayer[i] = pNeuron_t(new OutputNeuron());
 
       // Each input neuron gets connected to each hidden neuron.
-      array<double, 6> iWeights = {.15, .25, .20, .30, .35, .35};
       for (unsigned i = 0; i < NUM_IN + 1; ++i) {
         for (unsigned h = 0; h < NUM_HIDDEN; ++h) {
           // Connection is held by the backward neuron, so here the input
@@ -75,13 +79,39 @@ namespace busybin {
       }
 
       // Each hidden neuron gets connected to each output neuron.
-      array<double, 6> hWeights = {.40, .50, .45, .55, .60, .60};
       for (unsigned h = 0; h < NUM_HIDDEN + 1; ++h) {
         for (unsigned o = 0; o < NUM_OUT; ++o) {
           // Hidden neuron connects forward to output neuron.
           this->pHiddenLayer[h]->connectTo(*this->pOutputLayer[o], hWeights[NUM_HIDDEN * h + o]);
         }
       }
+    }
+
+  public:
+    /**
+     * Initialize the network with random weights.
+     */
+    NeuralNet() {
+      array<double, (NUM_IN     + 1) * NUM_HIDDEN> iWeights;
+      array<double, (NUM_HIDDEN + 1) * NUM_OUT>    hWeights;
+      uniform_real_distribution<double>            dist(-1, 1);
+      random_device                                randDev;
+      default_random_engine                        engine(randDev());
+
+      for (unsigned i = 0; i < iWeights.size(); ++i)
+        iWeights[i] = dist(engine);
+      for (unsigned h = 0; h < hWeights.size(); ++h)
+        hWeights[h] = dist(engine);
+
+      this->initialize(iWeights, hWeights);
+    }
+
+    /**
+     * Initialize the network with a given set of weights.
+     */
+    NeuralNet(array<double, (NUM_IN + 1) * NUM_HIDDEN> iWeights,
+      array<double, (NUM_HIDDEN + 1) * NUM_OUT> hWeights) {
+      this->initialize(iWeights, hWeights);
     }
 
     /**
