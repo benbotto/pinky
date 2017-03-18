@@ -107,10 +107,25 @@ namespace busybin {
     }
 
     /**
-     * Initialize the network with a given set of weights.
+     * Initialize the network with input and hidden weights.
      */
     NeuralNet(array<double, (NUM_IN + 1) * NUM_HIDDEN> iWeights,
       array<double, (NUM_HIDDEN + 1) * NUM_OUT> hWeights) {
+      this->initialize(iWeights, hWeights);
+    }
+
+    /**
+     * Initialize the network with a single array of weights.
+     */
+    NeuralNet(array<double, (NUM_IN + 1) * NUM_HIDDEN + (NUM_HIDDEN + 1) * NUM_OUT> weights) {
+      array<double, (NUM_IN     + 1) * NUM_HIDDEN> iWeights;
+      array<double, (NUM_HIDDEN + 1) * NUM_OUT>    hWeights;
+
+      for (unsigned i = 0; i < iWeights.size(); ++i)
+        iWeights[i] = weights[i];
+      for (unsigned i = 0; i < hWeights.size(); ++i)
+        hWeights[i] = weights[iWeights.size() + i];
+
       this->initialize(iWeights, hWeights);
     }
 
@@ -234,6 +249,24 @@ namespace busybin {
         oss << "\tWeight_B1" << ",O" << o << ": " << weights[o] << '\n';
 
       return oss.str();
+    }
+
+    /**
+     * Get the weights for all Neurons in the network, left to right, top to
+     * bottom.
+     */
+    array<double, (NUM_IN + 1) * NUM_HIDDEN + (NUM_HIDDEN + 1) * NUM_OUT> getWeights() const {
+      array<double, (NUM_IN + 1) * NUM_HIDDEN + (NUM_HIDDEN + 1) * NUM_OUT> weights;
+      unsigned w = 0;
+
+      for (const pNeuron_t& pNeuron : this->neurons) {
+        vector<double> nWeights = pNeuron->getWeights();
+
+        for (double weight : nWeights)
+          weights[w++] = weight;
+      }
+
+      return weights;
     }
 
     /**
