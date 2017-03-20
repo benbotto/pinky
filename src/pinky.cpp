@@ -3,30 +3,29 @@ using std::cout;
 using std::endl;
 #include <array>
 using std::array;
-
+#include <exception>
+using std::exception;
 #include "NeuralNet.h"
+#include "NeuralNetMomento.h"
 #include "neuron/Neuron.h"
 #include "neuron/InputNeuron.h"
 #include "neuron/BiasNeuron.h"
 
 int main(int argc, char* argv[]) {
-  //array<double, 6> iWeights = {.15, .25, .20, .30, .35, .35};
-  //array<double, 6> hWeights = {.40, .50, .45, .55, .60, .60};
-  //busybin::NeuralNet<2, 2, 2> nn(iWeights, hWeights);
-  busybin::NeuralNet<2, 2, 2> nn;
+  try {
+    busybin::NeuralNetMomento<2, 2, 2> momento;
+    busybin::NeuralNet<2, 2, 2>        nn = momento.load("weights.bin");;
 
-  cout << nn << endl;
-  nn.train({.05, .10}, {.01, .99});
-  cout << nn << endl;
-
-  /*for (unsigned i = 0; i < 50000000; ++i) {
+    cout << nn << endl;
     nn.train({.05, .10}, {.01, .99});
+    cout << nn << endl;
 
-    if (i % 1000000 == 0) {
-      cout << "Iteration: " << i << '\n'
-           << nn << endl;
-    }
-  }*/
+    for (double weight : nn.getWeights())
+      cout << weight << endl;
+  }
+  catch (exception& ex) {
+    cout << "Error: " << ex.what() << endl;
+  }
 
   return 0;
 }
