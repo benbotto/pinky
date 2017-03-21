@@ -48,8 +48,8 @@ namespace busybin {
      * Initialize the network.  This is called from the various overloaded
      * ctors, and does the actual initialization of the network.
      */
-    void initialize(array<double, (NUM_IN + 1) * NUM_HIDDEN> iWeights,
-      array<double, (NUM_HIDDEN + 1) * NUM_OUT> hWeights) {
+    void initialize(const array<double, (NUM_IN + 1) * NUM_HIDDEN>& iWeights,
+      const array<double, (NUM_HIDDEN + 1) * NUM_OUT>& hWeights) {
       this->pInputLayer  = &neurons[0];
       this->pHiddenLayer = &neurons[NUM_IN + 1];
       this->pOutputLayer = &neurons[NUM_IN + 1 + NUM_HIDDEN + 1];
@@ -74,7 +74,7 @@ namespace busybin {
         for (unsigned h = 0; h < NUM_HIDDEN; ++h) {
           // Connection is held by the backward neuron, so here the input
           // neuron connects forward into the hidden neuron.
-          this->pInputLayer[i]->connectTo(*this->pHiddenLayer[h], iWeights[NUM_IN * i + h]);
+          this->pInputLayer[i]->connectTo(*this->pHiddenLayer[h], iWeights[NUM_HIDDEN * i + h]);
         }
       }
 
@@ -82,7 +82,7 @@ namespace busybin {
       for (unsigned h = 0; h < NUM_HIDDEN + 1; ++h) {
         for (unsigned o = 0; o < NUM_OUT; ++o) {
           // Hidden neuron connects forward to output neuron.
-          this->pHiddenLayer[h]->connectTo(*this->pOutputLayer[o], hWeights[NUM_HIDDEN * h + o]);
+          this->pHiddenLayer[h]->connectTo(*this->pOutputLayer[o], hWeights[NUM_OUT * h + o]);
         }
       }
     }
