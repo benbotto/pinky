@@ -132,7 +132,7 @@ namespace busybin {
     /**
      * Do a round of training.
      */
-    void train(const array<double, NUM_IN>& inputs,
+    double train(const array<double, NUM_IN>& inputs,
       const array<double, NUM_OUT>& expected) {
 
       /**
@@ -198,6 +198,8 @@ namespace busybin {
       // Update the weights between the input layer and the hidden.
       for (unsigned i = 0; i < NUM_IN + 1; ++i)
         this->pInputLayer[i]->updateWeights();
+
+      return this->getTotalError();
     }
 
     /**
