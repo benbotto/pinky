@@ -41,8 +41,11 @@ namespace busybin {
     pNeuron_t* pOutputLayer;
 
     // This is the total error of the system, which is calculated
-    // after a forward pass.
+    // after a forward pass during a training run.
     double totalError;
+
+    // This is the outputs of the system, which is set after a forward pass.
+    array<double, NUM_OUT> outputs;
 
     /**
      * Initialize the network.  This is called from the various overloaded
@@ -139,48 +142,26 @@ namespace busybin {
        * Forward pass.
        */
 
-      // Reset the inputs/weights from the last training round.
-      for (unsigned i = NUM_IN + 1; i < this->neurons.size(); ++i)
-        this->neurons[i]->reset();
-
-      // Set the new inputs.
-      for (unsigned i = 0; i < NUM_IN; ++i)
-        dynamic_cast<InputNeuron&>(*this->pInputLayer[i]).pushInput(inputs[i]);
-
-      // Set the ideal outputs.
-      for (unsigned i = 0; i < NUM_OUT; ++i)
-        dynamic_cast<OutputNeuron&>(*this->pOutputLayer[i]).setIdeal(expected[i]);
-
-      // Feed the inputs forward to the hidden layer.
-      for (unsigned i = 0; i < NUM_IN + 1; ++i)
-        this->pInputLayer[i]->feedForward();
-
-      // Update the outputs for each hidden neuron.
-      for (unsigned i = 0; i < NUM_HIDDEN; ++i)
-        this->pHiddenLayer[i]->updateOutput();
-
-      // Feed the hidden outputs forward to the output layer.
-      for (unsigned i = 0; i < NUM_HIDDEN + 1; ++i)
-        this->pHiddenLayer[i]->feedForward();
-
-      // Finally, update the outputs.
-      for (unsigned i = 0; i < NUM_OUT; ++i)
-        this->pOutputLayer[i]->updateOutput();
+      this->feedForward(inputs);
 
       // Calculate the total error.
       this->totalError = 0;
 
-      for (unsigned i = 0; i < NUM_OUT; ++i) {
-        // E_{total} = \sum \frac{1}{2}(target - output)^{2}
-        // Note that the 1/2 is there so that the exponent cancels out when
-        // the derivative is taken.  A learning rate will be used, so the
-        // constant won't matter in the long run.
-        this->totalError += .5 * std::pow(expected[i] - this->pOutputLayer[i]->getOutput(), 2);
-      }
+      // E_{total} = \sum \frac{1}{2}(target - output)^{2}
+      // Note that the 1/2 is there so that the exponent cancels out when
+      // the derivative is taken.  A learning rate will be used, so the
+      // constant won't matter in the long run.
+      for (unsigned i = 0; i < NUM_OUT; ++i)
+        this->totalError += std::pow(expected[i] - this->outputs[i], 2);
+      this->totalError *= .5;
 
       /**
        * Backward pass.
        */
+
+      // Set the ideal outputs.
+      for (unsigned i = 0; i < NUM_OUT; ++i)
+        dynamic_cast<OutputNeuron&>(*this->pOutputLayer[i]).setIdeal(expected[i]);
 
       // Compute the error term for the output neurons.
       for (unsigned i = 0; i < NUM_OUT; ++i)
@@ -203,10 +184,52 @@ namespace busybin {
     }
 
     /**
+     * Feed the inputs forward and return the outputs.
+     */
+    array<double, NUM_OUT> feedForward(const array<double, NUM_IN>& inputs) {
+      // Reset the inputs/weights from the last training round.
+      for (unsigned i = NUM_IN + 1; i < this->neurons.size(); ++i)
+        this->neurons[i]->reset();
+
+      // Set the new inputs.
+      for (unsigned i = 0; i < NUM_IN; ++i)
+        dynamic_cast<InputNeuron&>(*this->pInputLayer[i]).pushInput(inputs[i]);
+
+      // Feed the inputs forward to the hidden layer.
+      for (unsigned i = 0; i < NUM_IN + 1; ++i)
+        this->pInputLayer[i]->feedForward();
+
+      // Update the outputs for each hidden neuron.
+      for (unsigned i = 0; i < NUM_HIDDEN; ++i)
+        this->pHiddenLayer[i]->updateOutput();
+
+      // Feed the hidden outputs forward to the output layer.
+      for (unsigned i = 0; i < NUM_HIDDEN + 1; ++i)
+        this->pHiddenLayer[i]->feedForward();
+
+      // Finally, update the outputs.
+      for (unsigned i = 0; i < NUM_OUT; ++i)
+        this->pOutputLayer[i]->updateOutput();
+
+      // Store the new outputs.
+      for (unsigned i = 0; i < NUM_OUT; ++i)
+        this->outputs[i] = this->pOutputLayer[i]->getOutput();
+
+      return this->getOutputs();
+    }
+
+    /**
      * Get the total error for the system.  Computed after a forward pass.
      */
     double getTotalError() const {
       return this->totalError;
+    }
+
+    /**
+     * Get the outputs for the system (available after a forward pass).
+     */
+    array<double, NUM_OUT> getOutputs() const {
+      return this->outputs;
     }
 
     /**
