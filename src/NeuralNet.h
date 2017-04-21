@@ -136,7 +136,7 @@ namespace busybin {
      * Do a round of training.
      */
     double train(const array<double, NUM_IN>& inputs,
-      const array<double, NUM_OUT>& expected) {
+      const array<double, NUM_OUT>& expected, double learningRate = .5) {
 
       /**
        * Forward pass.
@@ -174,11 +174,11 @@ namespace busybin {
 
       // Update the weights between the hidden layer and the output layer.
       for (unsigned i = 0; i < NUM_HIDDEN + 1; ++i)
-        this->pHiddenLayer[i]->updateWeights();
+        this->pHiddenLayer[i]->updateWeights(learningRate);
 
       // Update the weights between the input layer and the hidden.
       for (unsigned i = 0; i < NUM_IN + 1; ++i)
-        this->pInputLayer[i]->updateWeights();
+        this->pInputLayer[i]->updateWeights(learningRate);
 
       return this->getTotalError();
     }
